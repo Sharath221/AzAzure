@@ -60,7 +60,7 @@
         },
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
-            "name": "[concat(parameters('cosmosName'), '/sql/', parameters('databaseName'))]",
+            "name": "[concat(parameters('CosmosName'), '/sql/', parameters('databaseName'))]",
             "apiVersion": "2016-03-31",
             "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts/', parameters('databaseName'))]"
@@ -76,14 +76,14 @@
         },
         {
             "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
-            "name": "[concat(parameters('cosmosName'), '/sql/', parameters('databaseName'), '/', parameters('container')[copyIndex()].name)]",
+            "name": "[concat(parameters('CosmosName'), '/sql/', parameters('databaseName'), '/', parameters('container')[copyIndex()].name)]",
             "copy": {
                 "count": "[length(parameters('container'))]",
                 "name": "containercopy"
             },
             "apiVersion": "2016-03-31",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', parameters('cosmosName'), 'sql', parameters('databaseName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', parameters('CosmosName'), 'sql', parameters('databaseName'))]"
             ],
             "properties": {
                 "resource": {
