@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "CosmosName": {
+            "value": "#comosName#"
+        },
+        "databaseName": {
+            "value": "#databaseName#"
+        },
+        "container": {
+            "value":[ {
+               "name": "mycontainer1",
+               "paritionKey": "/paritionKey1"
+            },
+            {
+                "name": "mycontainer2",
+                "paritionKey": "/paritionKey2"
+             }]
+
+        }
+    }
+}

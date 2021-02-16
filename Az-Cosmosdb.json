@@ -1,0 +1,109 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "CosmosName": {
+            "type": "string",
+            "metadata": {
+                "description": "Cosmos account name"
+            }
+        },
+        "databaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "cosmos db name"
+            }
+        
+        },
+        "container": {
+            "type": "array",
+            "metadata": {
+                "description": "description"
+            },
+            "defaultValue": {
+                "name": "mycontainer",
+                "paritionKey": "/paritionKey1"
+             }
+        }
+        
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('CosmosName')]",
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2019-12-12",
+            "location": "[resourceGroup().location]",
+            "tags": {
+            },
+            "kind": "GlobalDocumentDB",
+            "properties": {
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Eventual",
+                    "maxStalenessPrefix": 1,
+                    "maxIntervalInSeconds": 5
+                },
+                "locations": [
+                    {
+                        "locationName": "[resourceGroup().location]",
+                        "failoverPriority": 0
+                    }
+                ],
+                "databaseAccountOfferType": "Standard",
+                
+                "enableAutomaticFailover": true,
+                "capabilities": [
+                    
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+            "name": "[concat(parameters('cosmosName'), '/sql/', parameters('databaseName'))]",
+            "apiVersion": "2016-03-31",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/', parameters('databaseName'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "[parameters('databaseName')]"
+                },
+                "options": {
+                    "throughput": 400
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
+            "name": "[concat(parameters('cosmosName'), '/sql/', parameters('databaseName'), '/', parameters('container')[copyIndex()].name)]",
+            "copy": {
+                "count": "[length(parameters('container'))]",
+                "name": "containercopy"
+            },
+            "apiVersion": "2016-03-31",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', parameters('cosmosName'), 'sql', parameters('databaseName'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "[parameters('container')[copyIndex()].name]",
+                    "partitionKey": {
+                        "paths": [
+                            "[parameters('container')[copyIndex()].paritionKey]"
+                        ],
+                        "kind": "hash"
+                    },
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "includedPaths": [],
+                        "excludedPaths": []
+                    }
+                },
+                "options": {
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
